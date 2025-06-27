@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 User = get_user_model()
 
+# Serializer for creating a user
 class CreateUserSerializer(serializers.Serializer):
     firstName = serializers.CharField()
     lastName = serializers.CharField()
@@ -46,3 +47,21 @@ Admin
 """
         send_mail(subject, message, None, [user.email])
         return user
+
+# Serializer for retrieving user info
+class UserSerializer(serializers.ModelSerializer):
+    group = serializers.SerializerMethodField()
+    userId = serializers.SerializerMethodField()
+    firstName = serializers.CharField(source='first_name')
+    lastName = serializers.CharField(source='last_name')
+    userName = serializers.CharField(source='username')
+
+    class Meta:
+        model = User
+        fields = ['userId', 'firstName', 'lastName', 'userName', 'email', 'role', 'group', 'date_joined']
+
+    def get_group(self, obj):
+        return [g.name for g in obj.groups.all()]
+
+    def get_userId(self, obj):
+        return str(obj.id)
